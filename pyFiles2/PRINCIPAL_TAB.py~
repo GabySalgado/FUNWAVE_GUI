@@ -1,0 +1,134 @@
+# This python file arranges the complete SegmentLeveeGUI tab structure
+
+#%matplotlib inline 
+#%matplotlib notebook
+import matplotlib.pyplot as plt
+import ipywidgets as widgets
+from IPython.display import display, clear_output
+from IPython.core.display import HTML
+
+##########################################################
+#### Tabs for Principal Tab 1: Bathymetry development ####
+##########################################################
+
+################################
+### Tab #1a: Initial options ###
+################################
+
+# tab 1a container box
+from pyFiles2.PrincipalTab_1 import page_initialOptions,plot_button,save_button
+
+
+##################################
+### Tab #1b: vertex elevations ###
+##################################
+
+# tab 1b container box
+from pyFiles2.PrincipalTab_1 import page_elevation
+
+
+################################
+### Tab #1c: Vertex Location ###
+################################
+
+# tab 1c container box
+from pyFiles2.PrincipalTab_1 import page_location 
+
+
+#######################################
+### Display tabs of Principal tab 1 ###
+#######################################
+
+bathy_tabs = widgets.Tab(children=[page_initialOptions,page_elevation,page_location])
+
+# Set Tabs title:
+bathy_tabs.set_title(0,'Initial Options')
+bathy_tabs.set_title(1, 'Vertex Elevations (m)')
+bathy_tabs.set_title(2, 'Vertex Location (m)')
+
+
+#####################################################
+#### Tabs for Principal Tab 2: Funwave Input txt ####
+#####################################################
+
+
+################################
+#### Tab #2a: Input Intro ####
+################################
+
+# tab 2a container box
+from pyFiles2.PrincipalTab_2 import page_inputIntro,inputFile_button     
+
+
+#####################################
+#### Tab #2b: Initial Conditions ####
+#####################################
+
+# tab 2b container box
+from pyFiles2.PrincipalTab_2 import page_iniCond 
+
+
+############################
+#### Tab #2c: Wavemaker ####
+############################
+
+# tab 2c container box
+from pyFiles2.PrincipalTab_2 import page_waveMaker,wave_maker 
+
+
+###############################
+#### Tab #2d: Sponge layer ####
+###############################
+
+# tab 2d container box
+from pyFiles2.PrincipalTab_2 import page_spongeLayer 
+
+#############################################
+#### Principal Tab 3: Funwave output txt ####    # this tab was merged to principal tab 2
+#############################################
+
+# principal tab 3
+from pyFiles2.PrincipalTab_3 import output_tabs 
+
+####################################################
+### Display tabs of Principal tab 2 & 3 (Merged) ###
+####################################################
+
+input_tabs = widgets.Tab(children=[page_inputIntro,page_iniCond,
+                                   page_waveMaker,page_spongeLayer,output_tabs])
+
+input_tabs.set_title(0,'<b>Step 1</b> Project Intro')
+input_tabs.set_title(1,'Step 2: Initial Conditions')
+input_tabs.set_title(2,'Step 3: Wave Maker')
+input_tabs.set_title(3,'Step 4: Sponge Layer')
+input_tabs.set_title(4,'Step 5: Output Options') # previously known as Principal Tab 3
+input_tabs.set_title(5,'Step 6: Generate Input File') # previously known as Principal Tab 3
+
+
+#######################################
+#### Principal Tab 4: Run Funwave  ####
+#######################################
+
+# principal tab 4
+from pyFiles2.PrincipalTab_4 import RUNfunwave_tabs,RunFunwave_button,abortFun_button
+
+
+###########################################
+#### Principal Tab 5: Post Processing  ####
+###########################################
+
+# principal tab 5
+from pyFiles2.PrincipalTab_5 import Video_button,video_tabs
+
+
+#################################
+#### Display Principal Tabs  ####
+#################################
+
+principal_tab = widgets.Tab(children=[bathy_tabs,input_tabs,RUNfunwave_tabs,video_tabs]) #,input_tabs,output_tabs,RUNfunwave_tabs,video_tabs])
+
+# Set the Principal Tab's titles:
+principal_tab.set_title(0,'Bathymetry')
+principal_tab.set_title(1,'Input File')
+principal_tab.set_title(2,'Run Funwave')    
+principal_tab.set_title(3,'Post Processing')

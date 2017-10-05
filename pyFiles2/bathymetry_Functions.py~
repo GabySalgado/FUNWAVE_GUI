@@ -1,0 +1,210 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from pyFiles2.PrincipalTab_1 import g,h,i,j,k,THL,NumSeg,MWL,aa,b,c,d,e,f,Dom,text_dom
+from pyFiles2.PRINCIPAL_TAB import principal_tab
+from IPython.display import display, clear_output
+
+### Plot and Save Bathy Functions  ###
+
+# globals (for slider replotting)
+fig, ax = plt.subplots(figsize=(15,5), dpi=600)
+plt.close(fig)
+
+def compute_high_difference(variable):    
+    # compute length difference between vertices
+    Vertex_Loc = [0.0,g.value,h.value,i.value,j.value,k.value,THL]
+    Vertex_Loc.sort()
+    SegLen = ([Vertex_Loc[num]- Vertex_Loc[num-1]
+                              for num in range(len(Vertex_Loc)) if num > 0])
+    
+    # compute high difference between vertices
+    VertexElev = [MWL.value,aa.value,b.value,c.value,d.value,e.value,f.value]
+    
+    
+    Hi_dif = [0.0]*6
+    Hi_dif = ([VertexElev[num]- VertexElev[num-1]
+                              for num in range(len(VertexElev)) if num > 0])
+    
+    # Domain discretization
+    if Dom.value == 'Points':  # if points 
+            points = int(text_dom.value)
+            if points < 1:
+                dx = 0
+                warning = 'Points must be greater than one.'
+                raise Exception(warning)
+                
+            if points > 1:
+                numOfSegments = points - 1
+                dx = float(THL)/numOfSegments
+    
+    else:            # if dx
+            dx = text_dom.value
+            if dx > 1:
+                points = 0
+                warning = 'dx must be less than one.'
+                raise Exception(warning)
+                
+            if dx >= 0.01:
+                numOfSegments = int(np.ceil(THL / dx))
+                points = int(numOfSegments - 1)
+    
+    DataFile = open('data.txt','w')         # save text file with points and dx for future use
+    dataText = """points = %d
+dx = %f"""%(points,dx)
+    DataFile.write(dataText)
+    DataFile.close()
+    
+    [depth, points, VertexElev, Vertex_Loc] = setDepth(points,dx,VertexElev,Hi_dif,SegLen,Vertex_Loc)
+    return [depth, points, VertexElev, Vertex_Loc]
+
+def setDepth(points,dx,VertexElev,Hi_dif,SegLen,Vertex_Loc):    # compute depth function
+    # depth NumPy array instantiation
+    depth = np.zeros(points)
+    
+    # lambda (inline) functions for each segment height
+    seg = []
+    for index in range(NumSeg):
+        # Create Line function (y = b + m*x)
+        seg.append(lambda x: VertexElev[index]+ Hi_dif[index]/SegLen[index]*x)
+
+    # set segment breakpoints/ends
+    segmentEnds = [0.0]*NumSeg   #placeholder
+    for outerIndex in range(NumSeg):
+        for innerIndex in range(outerIndex+1):
+            segmentEnds[outerIndex] += SegLen[innerIndex]
+    
+    # determine which segment point belongs to and set its depth
+    for point in range(points):
+        for index,endPoint in enumerate(segmentEnds):
+            location = point*dx
+            if index is 0:
+                    if location <= endPoint:
+                        shiftedToOrigin = location
+                        depth[point] = seg[index] (shiftedToOrigin)
+            else:
+                    if location<=endPoint and location>segmentEnds[index-1]:
+                        shiftedToOrigin = location-segmentEnds[index-1]
+                        depth[point] = seg[index] (shiftedToOrigin)       
+    return [depth, points, VertexElev, Vertex_Loc]
+    
+
+def on_plot(variable): #depth,points,VertexElev,Vertex_Loc):      # plot bathymetry function
+    [depth, points, VertexElev, Vertex_Loc] = compute_high_difference(variable)
+
+    # plotting the bathymetry with surface at z = 0
+    x = np.linspace(0,THL,points)
+
+    # clearing output/plot so we can plot on same graph
+    #clear_output(wait=True)
+    #fig, ax = plt.subplots(figsize=(15,5), dpi=600)
+    ax.clear()
+
+    ax.plot(x,depth,color='k',linewidth=2.0)
+    
+    ax.axis([0,THL,min(depth)-.55,max(depth)+1])
+
+    ax.fill_between(x,min(depth)-0.55,depth,where=depth>(min(depth)-0.5),
+                facecolor='0.35',hatch='X')
+    ax.set_xlabel('Length (m)', fontsize = 15)
+    ax.set_ylabel('Height (m)', fontsize = 15)
+
+    # water fill
+    waterLevel =  np.zeros(int(points))
+    ax.fill_between(x, depth, waterLevel, 
+                            where=waterLevel>depth,facecolor='cyan', interpolate=True)    
+    
+    ## identify each vertix in the plot using scatter plot:
+    #vert1
+    ax.scatter([0.0, ],[VertexElev[0], ], 100, color='red')
+    ax.annotate(r'$\#1$',
+             xy=(0.0,VertexElev[0]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    #vert2
+    ax.scatter([Vertex_Loc[1], ],[VertexElev[1], ], 100, color='red')
+    ax.annotate(r'$\#2$',
+             xy=(Vertex_Loc[1],VertexElev[1]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    #vert3             
+    ax.scatter([Vertex_Loc[2], ],[VertexElev[2], ], 100, color='red')
+    ax.annotate(r'$\#3$',
+             xy=(Vertex_Loc[2],VertexElev[2]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0.2"))
+    #vert4
+    ax.scatter([Vertex_Loc[3], ],[VertexElev[3], ], 100, color='red')
+    ax.annotate(r'$\#4$',
+             xy=(Vertex_Loc[3],VertexElev[3]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0.2"))
+    #vert5
+    ax.scatter([Vertex_Loc[4], ],[VertexElev[4], ], 100, color='red')
+    ax.annotate(r'$\#5$',
+             xy=(Vertex_Loc[4],VertexElev[4]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    #vert6
+    ax.scatter([Vertex_Loc[5], ],[VertexElev[5], ], 100, color='red')
+    ax.annotate(r'$\#6$',
+             xy=(Vertex_Loc[5],VertexElev[5]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    #vert7
+    ax.scatter([THL, ],[VertexElev[6], ], 50, color='red')
+    ax.annotate(r'$\#7$',
+             xy=(Vertex_Loc[6],VertexElev[6]), xycoords='data',
+             xytext=(+10, +30), textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))    
+    display(fig)
+
+
+def on_save_clicked(variable):
+    #clear_output(wait=True)           
+    # save bathy text file function
+    [depth, points, VertexElev, Vertex_Loc] = compute_high_difference(variable)
+    fin = open('depth.txt','w')
+    for i in range(3): 
+    # need three rows for Funwave to run a 1D case (really a 2D case)
+        for depthPoint in depth:
+            depthFunwaveFormat = depthPoint*-1
+            fin.write(str(depthFunwaveFormat)+' ')
+        fin.write('\n')
+    fin.close() 
+
+def on_plot_clicked(variable):    # plot bathymetry
+    clear_output(wait=True)
+    display(principal_tab)
+    on_plot(variable)
+
+def on_slider_change(change):
+    clear_output(wait=True)
+    display(principal_tab)
+    on_plot(change['new'])
+    
+
+
+# -------------------------------------------------------------------------------------
+# Controlling the flow in the bathymetry makeup 
+from pyFiles2.PrincipalTab_1 import plot_button, save_button
+from pyFiles2.PrincipalTab_1 import page_elevation, MWL, aa, b, c, d, e, f
+from pyFiles2.PrincipalTab_1 import g, h, i, j, k
+
+plot_button.on_click(on_plot_clicked) # user-initialized plotting via button
+save_button.on_click(on_save_clicked) # active save depth.txt button
+
+# vertical elevation sliders
+MWL.observe(on_slider_change)
+aa.observe(on_slider_change)
+b.observe(on_slider_change)
+c.observe(on_slider_change)
+d.observe(on_slider_change)
+e.observe(on_slider_change)
+f.observe(on_slider_change)
+
+# segment length sliders
+g.observe(on_slider_change)
+h.observe(on_slider_change)
+i.observe(on_slider_change)
+j.observe(on_slider_change)
+k.observe(on_slider_change)

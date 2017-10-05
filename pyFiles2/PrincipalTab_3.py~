@@ -1,0 +1,136 @@
+import ipywidgets as widgets
+from traitlets import link
+from pyFiles2.PrincipalTab_2 import time_text
+
+######################################################
+#### Principal Tab 3: Funwave output txt ####
+######################################################
+
+# this tab lets the user choose the variables that will appear in the output text
+label_output = widgets.Label("""Check all the variables desired in the output
+                text file:""",layout = widgets.Layout(width = '90%',height = '20px'))
+
+## column 1 of output tab:
+# depth_out widget container 
+DEPTH_OUT = widgets.Checkbox(description='Depth', value=False)
+
+# u widget 
+U = widgets.Checkbox(description='U',value=False)
+
+# v widget 
+V = widgets.Checkbox(description='V',value=False)
+
+# eta widget 
+ETA = widgets.Checkbox(description='ETA',value=False)
+
+# Hmax widget  
+Hmax = widgets.Checkbox(description='Hmax',value=False)
+
+# Hmin widget  
+Hmin = widgets.Checkbox(description='Hmin',value=False)
+
+# mfmax widget  
+MFmax = widgets.Checkbox(description='MFmax',value=False)
+
+# umax widget  
+Umax = widgets.Checkbox(description='Umax',value=False)
+
+# VORmax widget 
+VORmax = widgets.Checkbox(description='VORmax',value=False)
+
+# Umean widget 
+Umean = widgets.Checkbox(description='Umean',value=False)
+
+
+container_col1 = widgets.VBox(children=[DEPTH_OUT,U,V,ETA,Hmax,Hmin,MFmax,
+                Umax,VORmax,Umean],layout = widgets.Layout(width = '25%'))
+
+## column 2 of output tab:
+# Vmean widget 
+Vmean = widgets.Checkbox(description='Vmean',value=False)
+
+# ETAmean widget 
+ETAmean = widgets.Checkbox(description='ETAmean',value=False)
+
+# MASK widget 
+MASK = widgets.Checkbox(description='MASK',value=False)
+
+# MASK9 widget 
+MASK9 = widgets.Checkbox(description='MASK9',value=False)
+
+# SXL widget 
+SXL = widgets.Checkbox(description='SXL',value=False)
+
+# SXR widget 
+SXR = widgets.Checkbox(description='SXR',value=False)
+
+# SYL widget 
+SYL = widgets.Checkbox(description='SYL',value=False)
+
+# SYR widget 
+SYR = widgets.Checkbox(description='SYR',value=False)
+
+# SourceX widget
+SourceX = widgets.Checkbox(description='SourceX',value=False)
+
+# SourceY widget 
+SourceY = widgets.Checkbox(description='SourceY',value=False)
+
+container_col2 = widgets.VBox(children=[Vmean,ETAmean,MASK,
+                MASK9,SXL,SXR,SYL,SYR,SourceX,SourceY],
+                              layout =container_col1.layout)
+                                        
+## column 3 of output tab:
+# P widget 
+P = widgets.Checkbox(description='P',value=False)
+
+# Q widget 
+Q = widgets.Checkbox(description='Q',value=False)
+
+# Fx widget 
+Fx = widgets.Checkbox(description='Fx',value=False)
+
+# Fy widget 
+Fy = widgets.Checkbox(description='Fy',value=False)
+
+# Gx widget 
+Gx = widgets.Checkbox(description='Gx',value=False)
+
+# Gy widget 
+Gy = widgets.Checkbox(description='Gy',value=False)
+
+# AGE widget 
+AGE = widgets.Checkbox(description='AGE',value=False)
+
+# TMP widget 
+TMP = widgets.Checkbox(description='TMP',value=False)
+
+# WaveHeight 
+WaveHeight = widgets.Checkbox(description='Wave Height',value=False)
+
+container_col3 = widgets.VBox(children=[P,Q,Fx,Fy,Gx,Gy,AGE,
+                TMP,WaveHeight],layout=widgets.Layout(width='50%'))
+
+## column 4 of output tab:
+
+# Steady time widget container (label & bounded float text)
+label_steady_time = widgets.Label('Transient Time:',layout = widgets.Layout(width = "90%"))
+steady_time = widgets.BoundedFloatText(layout = widgets.Layout(width = "70%",height = '70px'))
+container_steadyTime = widgets.VBox(children=[label_steady_time,steady_time]) 
+
+link((time_text,'value'), (steady_time, 'max'))
+
+# T_INTV_mean widget container (label & bounded float text)
+label_TIntvMean = widgets.Label('Time Interval Mean:',layout = label_steady_time.layout)
+T_INTV_MEAN = widgets.BoundedFloatText(layout = steady_time.layout)
+container_TIntvMean = widgets.VBox(children=[label_TIntvMean,T_INTV_MEAN])
+
+container_col4 = widgets.VBox(children=[container_steadyTime,container_TIntvMean],
+                             layout =container_col1.layout)
+
+# create box with all columns
+container_totcol = widgets.HBox(children=[container_col1,container_col2,container_col3,container_col4],
+                               layout = widgets.Layout(width = "95%"))
+
+# tab 3a of principal tab 3
+output_tabs = widgets.VBox(children=[label_output,container_totcol],layout=container_totcol.layout)

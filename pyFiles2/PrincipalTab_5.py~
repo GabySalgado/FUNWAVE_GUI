@@ -1,0 +1,40 @@
+import ipywidgets as widgets
+from traitlets import link
+
+
+########################################
+#### Principal Tab 5: Post-process  ####
+########################################
+
+#intro label
+VIDEO_label = widgets.Label('Press Button to Generate Model Video after the model run is completed.',     
+                            layout = widgets.Layout(height = '90px'))
+
+# number of eta files container:
+numOfETA_label = widgets.Label('Number of ETA files:',
+                               layout = widgets.Layout(width = '30%'))
+numOfETA_text = widgets.BoundedFloatText(max = 7000,
+                                         layout = widgets.Layout(width = "50%"))
+# column 1: num of eta
+numOfETA_cont = widgets.HBox(children = [numOfETA_label, numOfETA_text],
+                             layout = widgets.Layout(width ='50%'))          
+
+# video container (label and button)
+Video_button = widgets.Button(description="Generate Model Video",
+                              layout = widgets.Layout(width = '80%',height = '45px'))
+# column 2: create video
+Videobutton_cont = widgets.Box(children=[Video_button],
+                               layout = widgets.Layout(width = '50%'))                          
+
+# columns container
+video_container = widgets.HBox(children = [numOfETA_cont, Videobutton_cont],                    
+                               layout = widgets.Layout(width = '100%',height = '145px'))
+
+# create video progress bar
+load_label = widgets.Label('Video Progress:',layout = widgets.Layout(width = '12%'))
+video_load = widgets.FloatProgress(value=0.0,min=5.0,max=10.0,step=0.1,
+                                 layout = widgets.Layout(width = '88%',height = '45px'))
+video_cont = widgets.HBox([load_label,video_load],layout = widgets.Layout(width = '90%',height = '137px'))
+
+# create video tab
+video_tabs = widgets.VBox(children=[VIDEO_label,video_container,video_cont])

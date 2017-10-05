@@ -1,0 +1,808 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import shutil
+
+# import pertinent variables from principal tab 2
+from pyFiles2.PrincipalTab_2 import title_text,processors_text, time_text,plotInt_text,show_initial, dif, fric, Dir, iniElev_text,Uvel_text,Vvel_text,wave_maker,var3,var2,var1,csp_text,CDsponge_text,LSW_text, RSW_text,BSW_text,TSW_text,R_sponge_text,A_sponge_text,input_verification #,output_text
+
+# import pertinent variables from principal tab 3
+from pyFiles2.PrincipalTab_3 import DEPTH_OUT,U,V,ETA,Hmax,Hmin,MFmax,Umax,VORmax,Umean,Vmean,ETAmean,MASK,MASK9,SXL,SXR,SYL,SYR,SourceX, SourceY,P,Q,Fx,Fy,Gx,Gy,AGE,TMP,WaveHeight,steady_time,T_INTV_MEAN 
+
+ 
+
+def boolean_function(variable):
+    
+    
+# This function changes the checkbox variables True & False to T & F
+# since that is the format of FUNWAVE's input file. 
+    if Turn_on_IC.value == True:
+        turn_on_IC = 'T'
+    else:
+        turn_on_IC = 'F'
+        
+    if dif.value == True:
+        dif_text = 'T'
+    else:
+        dif_text = 'F'   
+    
+    if fric.value == True:
+        fric_text = 'T'
+    else:
+        fric_text = 'F'
+        
+    if Dir.value == True:
+        dir_text = 'T'
+    else:
+        dir_text = 'F'
+        
+    if DEPTH_OUT.value == True:
+        depth_out = 'T'
+    else:
+        depth_out = 'F'    
+        
+    if U.value == True:
+        u = 'T'
+    else:
+        u = 'F'
+    
+    if V.value == True:
+        v = 'T'
+    else:
+        v = 'F' 
+        
+    if ETA.value == True:
+        eta = 'T'
+    else:
+        eta = 'F' 
+    
+    if Hmax.value == True:
+        hmax = 'T'
+    else:
+        hmax = 'F'
+    
+    if Hmin.value == True:
+        hmin = 'T'
+    else:
+        hmin = 'F'
+        
+    if MFmax.value == True:
+        mfmax = 'T'
+    else:
+        mfmax = 'F'    
+        
+    if Umax.value == True:
+        umax = 'T'
+    else:
+        umax = 'F'
+    
+    if VORmax.value == True:
+        vormax = 'T'
+    else:
+        vormax = 'F'
+        
+    if Umean.value == True:
+        umean = 'T'
+    else: 
+        umean = 'F'
+        
+    if Vmean.value == True:
+        vmean = 'T'
+    else:
+        vmean = 'F'
+        
+    if ETAmean.value == True:
+        etamean = 'T'
+    else:
+        etamean = 'F'
+        
+    if MASK.value == True:
+        mask = 'T'
+    else:
+        mask = 'F'
+    
+    if MASK9.value == True:
+        mask9 = 'T'
+    else:
+        mask9 = 'F'
+    
+    if SXL.value == True:
+        sxl = 'T'
+    else:
+        sxl = 'F'
+    
+    if SXR.value == True:
+        sxr = 'T'
+    else:
+        sxr = 'F'
+    
+    if SYL.value == True:
+        syl = 'T'
+    else:
+        syl = 'F'
+    
+    if SYR.value == True:
+        syr = 'T'
+    else:
+        syr = 'F'
+    
+    if SourceX.value == True:
+        sourcex = 'T'
+    else:
+        sourcex = 'F'
+        
+    if SourceY.value == True:
+        sourcey = 'T'
+    else:
+        sourcey = 'F'    
+    
+    if P.value == True:
+        p = 'T'
+    else:
+        p = 'F'
+        
+    if Q.value == True:
+        q = 'T'
+    else:
+        q = 'F'  
+        
+    if Fx.value == True:
+        fx = 'T'
+    else:
+        fx = 'F'
+        
+    if Fy.value == True:
+        fy = 'T'
+    else:
+        fy = 'F'
+        
+    if Gx.value == True:
+        gx = 'T'
+    else:
+        gx = 'F'
+        
+    if Gy.value == True:
+        gy = 'T'
+    else:
+        gy = 'F'    
+    
+    if AGE.value == True:
+        age = 'T'
+    else:
+        age = 'F'
+    
+    if TMP.value == True:
+        tmp = 'T'
+    else:
+        tmp = 'F'
+    
+    if WaveHeight.value == True:
+        waveheight = 'T'
+    else:
+        waveheight = 'F'
+    
+    generate_input_file(turn_on_IC,dif_text,fric_text,dir_text,depth_out,
+                       u,v,eta,hmax,hmin,mfmax,umax,vormax,umean,vmean,etamean,mask,
+                       mask9,sxl,sxr,syl,syr,sourcex,sourcey,p,q,fx,fy,gx,gy,age,tmp,waveheight,steady_time,T_INTV_MEAN) 
+    
+def generate_input_file(turn_on_IC,dif_text,fric_text,dir_text,depth_out,
+                       u,v,eta,hmax,hmin,mfmax,umax,vormax,umean,vmean,etamean,mask,
+                       mask9,sxl,sxr,syl,syr,sourcex,sourcey,p,q,fx,fy,gx,gy,age,tmp,waveheight,steady_time,T_INTV_MEAN):
+# this function generates FUNWAVE's input.txt
+        
+        # Step 1 - take bathy points and dx data saved in data.txt 
+        fin= open('data.txt','r')  
+        val = fin.read()            
+        val=val.split()
+        points = val[2]
+        dx = float(val[5])
+        
+        # Step 2 - create output folder and input file
+        pwd = os.getcwd()  # get current path
+        output_text=os.path.join(pwd,'output/') # create output folder path 
+
+        check_dir = os.path.exists(output_text) # check if output folder exist
+
+        if check_dir == True:         # if output folder exist, remove it
+            shutil.rmtree(output_text)
+        else:                         # else, create output folder
+            os.mkdir(output_text)
+        
+        fin = open('input.txt','w') # create input file
+        inputFile = """!INPUT FILE FOR FUNWAVE_TVD
+! NOTE: all input parameter are capital sensitive
+! --------------------TITLE-------------------------------------
+! title only for log file
+TITLE = %s
+! -------------------HOT START---------------------------------
+HOT_START = F
+FileNumber_HOTSTART = 0 
+! -------------------PARALLEL INFO-----------------------------
+! 
+!    PX,PY - processor numbers in X and Y
+!    NOTE: make sure consistency with mpirun -np n (px*py)
+!    
+PX = %s
+PY = 1
+! --------------------DEPTH-------------------------------------
+! Depth types, DEPTH_TYPE=DATA: from depth file
+!              DEPTH_TYPE=FLAT: idealized flat, need depth_flat
+!              DEPTH_TYPE=SLOPE: idealized slope, 
+!                                 need slope,SLP starting point, Xslp
+!                                 and depth_flat
+DEPTH_TYPE = DATA
+! Depth file
+! depth format NOD: depth at node (M1xN1), ELE: depth at ele (MxN) 
+! where (M1,N1)=(M+1,N+1)  
+DEPTH_FILE = depth.txt
+DepthFormat = ELE
+! if depth is flat and slope, specify flat_depth
+DEPTH_FLAT = 30.0
+if depth is slope, specify slope and starting point
+SLP = 0.05
+Xslp = 10.0
+
+! -------------------PRINT---------------------------------
+! PRINT*,
+! result folder
+RESULT_FOLDER = %s
+! ------------------DIMENSION-----------------------------
+! global grid dimension
+Mglob = %s
+Nglob = 3
+! ----------------- TIME----------------------------------
+! time: total computational time/ plot time / screen interval 
+! all in seconds
+TOTAL_TIME = %4.2f
+PLOT_INTV = %4.2f
+PLOT_INTV_STATION = 0.5
+SCREEN_INTV = 10.0
+HOTSTART_INTV = 360000000.0
+! -----------------GRID----------------------------------
+! if use spherical grid, in decimal degrees
+StretchGrid = F
+Lon_West = 120.0
+Lat_South = 0.0
+Dphi = 0.0042
+Dtheta = 0.0042 
+!DX_FILE = ../input/dx_str.txt
+!DY_FILE = ../input/dy_str.txt
+CORIOLIS_FILE = ../input/cori_str.txt
+! cartesian grid sizes
+DX = %4.2f
+DY = %4.2f
+! --------------- INITIAL UVZ ---------------------------
+! INI_UVZ - initial UVZ e.g., initial deformation
+!         must provide three (3) files 
+INI_UVZ = %s
+! if true, input eta u and v file names
+ETA_FILE = %s
+U_FILE = %s
+V_FILE = %s
+!MASK_FILE = ../result_eddy_long/mask_0340
+HotStartTime = 0.0
+OutputStartNumber = 0
+! ----------------WAVEMAKER------------------------------
+!  wave maker
+! LEF_SOL- left boundary solitary, need AMP,DEP, LAGTIME
+! INI_SOL- initial solitary wave, WKN B solution, 
+! need AMP, DEP, XWAVEMAKER 
+! INI_REC - rectangular hump, need to specify Xc,Yc and WID
+! WK_REG - Wei and Kirby 1999 internal wave maker, Xc_WK,Tperiod
+!          AMP_WK,DEP_WK,Theta_WK, Time_ramp (factor of period)
+! WK_IRR - Wei and Kirby 1999 TMA spectrum wavemaker, Xc_WK,
+!          DEP_WK,Time_ramp, Delta_WK, FreqPeak, FreqMin,FreqMax,
+!          Hmo,GammaTMA,ThetaPeak
+! WK_TIME_SERIES - fft time series to get each wave component
+!                 and then use Wei and Kirby 1999 
+!          need input WaveCompFile (including 3 columns: per,amp,pha)
+!          NumWaveComp,PeakPeriod,DEP_WK,Xc_WK,Ywidth_WK
+WAVEMAKER = %s
+! ------------ fft options--------------------------------
+! wave components based on fft time series
+NumWaveComp = 1505
+PeakPeriod = 1.0
+WaveCompFile = ../fft/wavemk_per_amp_pha.txt
+! ---------- solitary wave options -----------------------
+! solitary wave
+AMP = %4.2f
+DEP = %4.2f
+LAGTIME = %4.2f
+XWAVEMAKER = %4.2f
+! ---------- Rectangular hump ----------------------------
+! Xc, Yc and WID (degrees) are for rectangular hump with AMP
+Xc = %4.2f
+Yc = %4.2f
+WID = %4.2f
+! ---------------- PERIODIC BOUNDARY CONDITION ---------
+! South-North periodic boundary condition
+!
+PERIODIC = F
+! ---------------- SPONGE LAYER ------------------------
+! DHI type sponge layer
+! need to specify widths of four boundaries and parameters
+! set width=0.0 if no sponge
+! R_sponge: decay rate
+! A_sponge: maximum decay rate
+! e.g., sharp: R=0.85
+!       mild:  R=0.90, A=5.0
+!       very mild, R=0.95, A=5.0
+DIFFUSION_SPONGE = %s
+FRICTION_SPONGE = %s
+DIRECT_SPONGE = %s
+Csp = %4.2f
+CDsponge = %4.2f
+Sponge_west_width =  %4.2f
+Sponge_east_width =  %4.2f
+Sponge_south_width = %4.2f
+Sponge_north_width = %4.2f
+R_sponge = %4.2f
+A_sponge = %4.2f
+ETA_LIMITER = F
+CrestLimit = 6.0
+TroughLimit = -6.0
+! ----------------OBSTACLES-----------------------------
+! obstacle structures using mask_struc file
+! mask_struc =0 means structure element
+! give a file contains a mask array with Mloc X Nloc
+!OBSTACLE_FILE= breakwaters.txt
+! ----------------PHYSICS------------------------------
+! parameters to control type of equations
+! dispersion: all dispersive terms
+! gamma1=1.0,gamma2=0.0: NG's equations
+! gamma1=1.0,gamma2=1.0: Fully nonlinear equations
+DISPERSION = T
+Gamma1 = 1.0
+Gamma2 = 1.0    
+Gamma3 = 1.0    ! If set to zero, full linear case.
+Beta_ref=-0.531
+SWE_ETA_DEP = 0.80
+VISCOSITY_BREAKING = T
+!----------------Friction-----------------------------
+Friction_Matrix = F
+Cd_file= fric.txt
+Cd = 0.0
+! Cd = 0.01
+! ----------------NUMERICS----------------------------
+! time scheme: runge_kutta for all types of equations
+!              predictor-corrector for NSWE
+! space scheme: second-order
+!               fourth-order
+! construction: HLLC
+! cfl condition: CFL
+! froude number cap: FroudeCap
+
+Time_Scheme = Runge_Kutta
+!Time_Scheme = Predictor_Corrector
+! spacial differencing
+
+HIGH_ORDER = THIRD
+CONSTRUCTION = HLLC
+! CFL
+CFL = 0.5
+! Froude Number Cap (to avoid jumping drop, set 10)
+FroudeCap = 10.0
+! --------------WET-DRY-------------------------------
+! MinDepth for wetting-drying
+MinDepth=0.05
+! -----------------
+! MinDepthfrc to limit bottom friction
+MinDepthFrc = 0.05
+!---------------breaking-----------------------------
+!  there are two options for breaking algorithm 
+!  1: shock-capturing breaking, need SWE_ETA_DEP
+!  2: eddy-viscosity breaking, when VISCOSITY_BREAKING = T
+!     the shock-capturing breaking is invalid
+!     Cbrk1 and Cbrk2 are parameters defined in Kennedy et al 2000
+!     suggested in this model Cbrk1=0.65, Cbrk2=0.15
+!     WAVEMAKER_Cbrk is to avoid breaking inside wavemaker 
+SWE_ETA_DEP = 0.80
+VISCOSITY_BREAKING = T
+Cbrk1 = 0.65
+Cbrk2 = 0.35
+WAVEMAKER_Cbrk = 0.65
+! ----------------- MIXING ---------------------------
+! if use smagorinsky mixing, have to set -DMIXING in Makefile
+! and set averaging time interval, T_INTV_mean, default: 20s
+STEADY_TIME = %4.2f
+T_INTV_mean = %4.2f
+C_smg = 0.2
+! ----------------- COUPLING -------------------------
+! if do coupling, have to set -DCOUPLING in Makefile
+COUPLING_FILE = coupling.txt
+! -----------------OUTPUT-----------------------------
+! stations 
+! if NumberStations>0, need input i,j in STATION_FILE
+NumberStations = 0
+STATIONS_FILE = stations.txt
+! output variables, T=.TRUE, F = .FALSE.
+DEPTH_OUT = %s
+U = %s
+V = %s
+ETA = %s
+Hmax = %s
+Hmin = %s
+MFmax = %s
+Umax = %s
+VORmax = %s
+Umean = %s
+Vmean = %s
+ETAmean = %s
+MASK = %s
+MASK9 = %s
+SXL = %s
+SXR = %s
+SYL = %s
+SYR = %s
+SourceX = %s
+SourceY = %s
+P = %s
+Q = %s
+Fx = %s
+Fy = %s
+Gx = %s
+Gy = %s
+AGE = %s
+TMP = %s
+WaveHeight = %s""" % (title_text.value,int(processors_text.value),
+                              str(output_text),points,time_text.value,plotInt_text.value,dx,dx,turn_on_IC,
+                              iniElev_text.value,Uvel_text.value,Vvel_text.value,
+                             wave_maker.value,var3.value,var2.value,var1.value,
+                              var1.value,var1.value,var2.value,var3.value,
+                             dif_text, fric_text, dir_text,
+                             csp_text.value,CDsponge_text.value,LSW_text.value,
+                             RSW_text.value,BSW_text.value,TSW_text.value,
+                             R_sponge_text.value,A_sponge_text.value,steady_time.value,T_INTV_MEAN.value, 
+                              depth_out,u,v,eta,hmax,hmin,mfmax,umax,vormax,umean,vmean,
+                              etamean,mask,mask9,sxl,sxr,syl,syr,sourcex,sourcey,p,q,fx,
+                              fy,gx,gy,age,tmp,waveheight)
+        fin.write(inputFile)
+        fin.close()
+     
+def update_input_function(variable):
+    pwd = os.getcwd()  # get current path
+    output_text=os.path.join(pwd,'output/') # create output path 
+    
+### this function lets the user update the input.txt before generating the file
+
+# Step 1: change the checkbox variables True & False to T & F
+    if Turn_on_IC.value == True:
+        turn_on_IC = 'T'
+    else:
+        turn_on_IC = 'F'
+        
+    if dif.value == True:
+        dif_text = 'T'
+    else:
+        dif_text = 'F'   
+    
+    if fric.value == True:
+        fric_text = 'T'
+    else:
+        fric_text = 'F'
+        
+    if Dir.value == True:
+        dir_text = 'T'
+    else:
+        dir_text = 'F'
+        
+    if DEPTH_OUT.value == True:
+        depth_out = 'T'
+    else:
+        depth_out = 'F'    
+        
+    if U.value == True:
+        u = 'T'
+    else:
+        u = 'F'
+    
+    if V.value == True:
+        v = 'T'
+    else:
+        v = 'F' 
+        
+    if ETA.value == True:
+        eta = 'T'
+    else:
+        eta = 'F' 
+    
+    if Hmax.value == True:
+        hmax = 'T'
+    else:
+        hmax = 'F'
+    
+    if Hmin.value == True:
+        hmin = 'T'
+    else:
+        hmin = 'F'
+        
+    if MFmax.value == True:
+        mfmax = 'T'
+    else:
+        mfmax = 'F'    
+        
+    if Umax.value == True:
+        umax = 'T'
+    else:
+        umax = 'F'
+    
+    if VORmax.value == True:
+        vormax = 'T'
+    else:
+        vormax = 'F'
+        
+    if Umean.value == True:
+        umean = 'T'
+    else: 
+        umean = 'F'
+        
+    if Vmean.value == True:
+        vmean = 'T'
+    else:
+        vmean = 'F'
+        
+    if ETAmean.value == True:
+        etamean = 'T'
+    else:
+        etamean = 'F'
+        
+    if MASK.value == True:
+        mask = 'T'
+    else:
+        mask = 'F'
+    
+    if MASK9.value == True:
+        mask9 = 'T'
+    else:
+        mask9 = 'F'
+    
+    if SXL.value == True:
+        sxl = 'T'
+    else:
+        sxl = 'F'
+    
+    if SXR.value == True:
+        sxr = 'T'
+    else:
+        sxr = 'F'
+    
+    if SYL.value == True:
+        syl = 'T'
+    else:
+        syl = 'F'
+    
+    if SYR.value == True:
+        syr = 'T'
+    else:
+        syr = 'F'
+    
+    if SourceX.value == True:
+        sourcex = 'T'
+    else:
+        sourcex = 'F'
+        
+    if SourceY.value == True:
+        sourcey = 'T'
+    else:
+        sourcey = 'F'    
+    
+    if P.value == True:
+        p = 'T'
+    else:
+        p = 'F'
+        
+    if Q.value == True:
+        q = 'T'
+    else:
+        q = 'F'  
+        
+    if Fx.value == True:
+        fx = 'T'
+    else:
+        fx = 'F'
+        
+    if Fy.value == True:
+        fy = 'T'
+    else:
+        fy = 'F'
+        
+    if Gx.value == True:
+        gx = 'T'
+    else:
+        gx = 'F'
+        
+    if Gy.value == True:
+        gy = 'T'
+    else:
+        gy = 'F'    
+    
+    if AGE.value == True:
+        age = 'T'
+    else:
+        age = 'F'
+    
+    if TMP.value == True:
+        tmp = 'T'
+    else:
+        tmp = 'F'
+    
+    if WaveHeight.value == True:
+        waveheight = 'T'
+    else:
+        waveheight = 'F'
+
+#Step 2: upload data.txt to obtain point and dx values
+    fin= open('data.txt','r')  
+    val = fin.read()            
+    val=val.split()
+    points = val[2]
+    dx = float(val[5])
+    
+#Step  3: update FUNWAVE's input.txt before generating it      
+    inputFile = """!INPUT FILE FOR FUNWAVE_TVD <br>
+! --------------------TITLE-------------------------------------<br>
+! title only for log file<br>
+TITLE = %s<br>
+! -------------------PARALLEL INFO-----------------------------<br>
+!    PX,PY - processor numbers in X and Y<br>
+!    NOTE: make sure consistency with mpirun -np n (px*py)<br>
+!    <br>
+PX = %s<br>
+PY = 1<br>
+! --------------------DEPTH-------------------------------------<br>
+DEPTH_TYPE = DATA<br>
+DEPTH_FILE = depth.txt<br>
+DepthFormat = ELE<br>
+! -------------------PRINT---------------------------------<br>
+! PRINT*,<br>
+! result folder<br>
+RESULT_FOLDER = %s<br>
+! ------------------DIMENSION-----------------------------<br>
+! global grid dimension<br>
+Mglob = %s<br>
+Nglob = 3<br>
+! ----------------- TIME----------------------------------<br>
+! time: total computational time/ plot time / screen interval <br>
+! all in seconds<br>
+TOTAL_TIME = %4.2f<br>
+PLOT_INTV = %4.2f<br>
+PLOT_INTV_STATION = 0.5<br>
+SCREEN_INTV = 10.0<br>
+! -----------------GRID----------------------------------<br>
+! if use spherical grid, in decimal degrees<br>
+StretchGrid = F<br>
+Lon_West = 120.0<br>
+Lat_South = 0.0<br>
+Dphi = 0.0042<br>
+Dtheta = 0.0042 <br>
+! cartesian grid sizes<br>
+DX = %4.2f<br>
+DY = %4.2f<br>
+! --------------- INITIAL UVZ ---------------------------<br>
+! INI_UVZ - initial UVZ e.g., initial deformation<br>
+!         must provide three (3) files <br>
+INI_UVZ = %s<br>
+! if true, input eta u and v file names<br>
+ETA_FILE = %s<br>
+U_FILE = %s<br>
+V_FILE = %s<br>
+! ----------------WAVEMAKER------------------------------<br>
+WAVEMAKER = %s<br>
+! ------------ fft options--------------------------------<br>
+! wave components based on fft time series<br>
+NumWaveComp = 1505<br>
+PeakPeriod = 1.0<br>
+WaveCompFile = ../fft/wavemk_per_amp_pha.txt<br>
+! ---------- solitary wave options -----------------------<br>
+! solitary wave<br>
+AMP = %4.2f<br>
+DEP = %4.2f<br>
+LAGTIME = %4.2f<br>
+XWAVEMAKER = %4.2f<br>
+! ---------- Rectangular hump ----------------------------<br>
+! Xc, Yc and WID (degrees) are for rectangular hump with AMP<br>
+Xc = %4.2f<br>
+Yc = %4.2f<br>
+WID = %4.2f<br>
+! ---------------- PERIODIC BOUNDARY CONDITION ---------<br>
+! South-North periodic boundary condition<br>
+!<br>
+PERIODIC = F<br>
+! ---------------- SPONGE LAYER ------------------------<br>
+DIFFUSION_SPONGE = %s<br>
+FRICTION_SPONGE = %s<br>
+DIRECT_SPONGE = %s<br>
+Csp = %4.2f<br>
+CDsponge = %4.2f<br>
+Sponge_west_width =  %4.2f<br>
+Sponge_east_width =  %4.2f<br>
+Sponge_south_width = %4.2f<br>
+Sponge_north_width = %4.2f<br>
+!<br>
+! R_sponge: decay rate<br>
+! A_sponge: maximum decay rate<br>
+! e.g., sharp: R=0.85<br>
+!       mild:  R=0.90, A=5.0<br>
+!       very mild, R=0.95, A=5.0<br>
+R_sponge = %4.2f<br>
+A_sponge = %4.2f<br>
+ETA_LIMITER = F<br>
+CrestLimit = 6.0<br>
+TroughLimit = -6.0<br>
+! ----------------PHYSICS------------------------------<br>
+DISPERSION = T<br>
+Gamma1 = 1.0<br>
+Gamma2 = 1.0 <br>   
+Gamma3 = 1.0    ! If set to zero, full linear case.<br>
+Beta_ref=-0.531<br>
+SWE_ETA_DEP = 0.80<br>
+VISCOSITY_BREAKING = T<br>
+!----------------Friction-----------------------------<br>
+Cd = 0.0<br>
+! ----------------NUMERICS----------------------------<br>
+Time_Scheme = Runge_Kutta<br>
+HIGH_ORDER = THIRD<br>
+CONSTRUCTION = HLLC<br>
+CFL = 0.5<br>
+! Froude Number Cap (to avoid jumping drop, set 10)<br>
+FroudeCap = 10.0<br>
+! --------------WET-DRY-------------------------------<br>
+! MinDepth for wetting-drying<br>
+MinDepth=0.05<br>
+! -----------------<br>
+! MinDepthfrc to limit bottom friction<br>
+MinDepthFrc = 0.05<br>
+!---------------breaking-----------------------------<br>
+SWE_ETA_DEP = 0.80<br>
+VISCOSITY_BREAKING = T<br>
+Cbrk1 = 0.65<br>
+Cbrk2 = 0.35<br>
+WAVEMAKER_Cbrk = 0.65<br>
+! ----------------- MIXING ---------------------------<br>
+STEADY_TIME = %4.2f<br>
+T_INTV_mean = %4.2f<br>
+C_smg = 0.2<br>
+! -----------------OUTPUT-----------------------------<br>
+! output variables, T=.TRUE, F = .FALSE.<br>
+DEPTH_OUT = %s<br>
+U = %s<br>
+V = %s<br>
+ETA = %s<br>
+Hmax = %s<br>
+Hmin = %s<br>
+MFmax = %s<br>
+Umax = %s<br>
+VORmax = %s<br>
+Umean = %s<br>
+Vmean = %s<br>
+ETAmean = %s<br>
+MASK = %s<br>
+MASK9 = %s<br>
+SXL = %s<br>
+SXR = %s<br>
+SYL = %s<br>
+SYR = %s<br>
+SourceX = %s<br>
+SourceY = %s<br>
+P = %s<br>
+Q = %s<br>
+Fx = %s<br>
+Fy = %s<br>
+Gx = %s<br>
+Gy = %s<br>
+AGE = %s<br>
+TMP = %s<br>
+WaveHeight = %s""" % (title_text.value,int(processors_text.value),
+                              str(output_text),points,time_text.value,plotInt_text.value,dx,dx,turn_on_IC,
+                              iniElev_text.value,Uvel_text.value,Vvel_text.value,
+                             wave_maker.value,var3.value,var2.value,var1.value,
+                              var1.value,var1.value,var2.value,var3.value,
+                             dif_text, fric_text, dir_text,
+                             csp_text.value,CDsponge_text.value,LSW_text.value,
+                             RSW_text.value,BSW_text.value,TSW_text.value,
+                             R_sponge_text.value,A_sponge_text.value,steady_time.value,T_INTV_MEAN.value, 
+                              depth_out,u,v,eta,hmax,hmin,mfmax,umax,vormax,umean,vmean,
+                              etamean,mask,mask9,sxl,sxr,syl,syr,sourcex,sourcey,p,q,fx,
+                              fy,gx,gy,age,tmp,waveheight)
+
+    input_verification.value = inputFile

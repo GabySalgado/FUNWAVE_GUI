@@ -1,0 +1,284 @@
+import ipywidgets as widgets
+from traitlets import link
+
+#####################################################
+#### Tabs for Principal Tab 2: Funwave Input txt ####
+#####################################################
+
+
+################################
+#### Tab #2a: Input Intro ####
+################################
+
+space_box1 = widgets.Box(layout=widgets.Layout(height ='25px', width='90%')) # box created to have space among widgets 
+
+# label with input.txt intro
+label_input_INTRO = widgets.HTML("""This Notebook creates <b>FUNWAVE's
+input.txt</b> according to the user's specifications.<br> It consists of the following six steps:""",
+layout = widgets.Layout(height = '50px', width = '90%'))
+
+space_box2 = widgets.Box(layout=widgets.Layout(width='10%')) # box created to have space among widgets
+
+input_step1 = widgets.HTML("""<b>1- Project Intro:</b> In this tab the user submits the <b>Project's title</b>, the 
+<b>Number of Processors (NP)</b>, the simulation's <b>Total Time (TT)</b>, and the <b>Plot Interval (PI).</b>""")
+
+input_step2 = widgets.HTML("""<b>2- Initial Conditions:</b> In this tab the user determines if the project has 
+initial conditions and specifies their names. These files must be uploaded in the Jupyter 
+Notebook Home folder.""")
+
+input_step3 = widgets.HTML("""<b>3- Wave Maker:</b> The user chooses the wave maker and inputs it's respective 
+specifications.""")
+
+input_step4 = widgets.HTML("""<b>4- Sponge Layer:</b> The user chooses the sponge layers and inputs their respective 
+specifications.""")
+
+input_step5 = widgets.HTML("""<b>5- Output Options:</b> The user chooses all the variables desired in the
+ output text file.""")
+
+input_step6 = widgets.HTML("""<b>6- Generate Input:</b> The user verifies and generates the project's input.txt""")
+
+step_box = widgets.VBox([input_step1,input_step2,input_step3,input_step4,input_step5,input_step6],
+                        layout = widgets.Layout(width = '80%'))
+
+space_step_box = widgets.HBox([space_box2,step_box]) # box containing the steps of Input tab
+
+# Project title input widget container (label & textbox)
+label_title = widgets.Label('Project Title:')
+title_text = widgets.Text(layout=widgets.Layout(width = "70%"))
+container_title = widgets.VBox(children=[label_title,title_text],
+                               layout = widgets.Layout(width = '45%'))
+
+# Number of processors widget container (label & textbox)
+label_processors = widgets.Label('NP:')
+processors_text = widgets.BoundedFloatText(max = '32', min = '4', layout = widgets.Layout(width = "60%"))
+container_processors = widgets.VBox(children=[label_processors,processors_text])
+
+# Total project time widget container (label & textbox)
+label_time = widgets.Label('TT (sec):')
+time_text = widgets.BoundedFloatText(max=3600, layout=processors_text.layout)
+container_time = widgets.VBox(children=[label_time,time_text])
+
+# Total project time widget container (label & textbox)
+label_plotInt = widgets.Label('PI (sec):')
+plotInt_text = widgets.BoundedFloatText(max=3600, layout=processors_text.layout)
+container_pltint = widgets.VBox(children=[label_plotInt,plotInt_text])
+
+container_proc_time = widgets.HBox([container_processors,container_time,container_pltint])
+container_title_proc_time = widgets.HBox([container_title,container_proc_time],
+                                         layout = widgets.Layout(height = '75px'))
+
+# tab 2a container box
+page_inputIntro = widgets.VBox(children=[label_input_INTRO,space_step_box,space_box1,space_box1,
+                              container_title_proc_time],layout = widgets.Layout(width = "90%",height = '460px',
+                                                              align_items = 'stretch' ))
+
+#####################################
+#### Tab #2b: Initial Conditions ####
+#####################################
+
+def initial_condition(): 
+    label_iniCond = widgets.HTML("""The Initial elevation file dictates the 
+         dry/wet zones of the bathymetry. The initial U and V velocity files specifies 
+        the velocities in the x and y directions. They must be uploaded in 
+        the Jupyter Notebook Home folder before running the simulation.""",
+        layout = widgets.Layout(height = '45px', width = '90%',
+                    size = '20'))
+
+    space_box = widgets.Box(layout=widgets.Layout(height ='25px', width='90%')) 
+    # this ^ box is created to have space among widgets 
+
+    # initial elevation widget container (label and textbox)
+    label_iniElev = widgets.Label('Initial Elevation Text File:',
+    layout =  widgets.Layout(width = '18%'))
+    iniElev_text = widgets.Text(layout=widgets.Layout(width = "50%",height = '85px'))
+    container_iniElev = widgets.HBox(children=[label_iniElev,iniElev_text])
+
+    # initial u vel widget container (label and textbox)
+    label_Uvel = widgets.Label('Initial U Velocity Text File:', 
+    layout = widgets.Layout(width = '18%'))
+    Uvel_text = widgets.Text(layout = iniElev_text.layout)
+    container_Uvel = widgets.HBox(children=[label_Uvel,Uvel_text])
+
+    # initial v vel widget container (label and textbox)
+    label_Vvel = widgets.Label('Initial V Velocity Text File:', 
+    layout = widgets.Layout(width = '18%'))
+    Vvel_text = widgets.Text(layout = iniElev_text.layout)
+    container_Vvel = widgets.HBox(children=[label_Vvel,Vvel_text])
+
+    iniCond_box = widgets.VBox(children=[label_iniCond,space_box,container_iniElev,
+                                container_Uvel,container_Vvel])
+    
+    return iniCond_box,iniElev_text,Uvel_text,Vvel_text
+
+
+def toggle_initial(change):
+    if change['new']:
+        #show
+        init.layout.display=''
+    else:
+        # hide
+        init.layout.display='none'
+
+init = initial_condition()
+show_initial = widgets.Checkbox(description='Show initial conditions')        
+show_initial.observe(toggle_initial, 'value')
+toggle_initial({'new': show_initial.value})
+
+# tab 2b container box
+page_iniCond  = widgets.VBox([show_initial, init],layout = widgets.Layout(width = "90%",height = '460px',
+                                                              align_items = 'stretch' ))
+
+############################
+#### Tab #2c: Wavemaker ####
+############################
+
+# wavemaker dropdown widget
+label_wave = widgets.Label("""Specification of Wave maker:""",layout = widgets.Layout(height = '35px'))
+wave_options = ('Select Wave Maker','LEF_SOL','INI_SOL','INI_REC','WK_REG','WK_IRR','JON_2D','JON_1D','TMA_1D','GAUSIAN')
+wave_maker = widgets.Dropdown(options=wave_options)
+wave_container = widgets.VBox([label_wave,wave_maker],layout = widgets.Layout(height = '100px'))
+
+label_waveMaker = widgets.Label('Input values for wavemaker variables:',layout = widgets.Layout(height = '35px'))
+
+#the description of this widgets (input variables) changes depending on the chosen wavemaker (see wavemaker_function!!):
+label_var1 = widgets.Label(' ',layout = widgets.Layout(width = "40%"))
+var1 = widgets.BoundedFloatText(layout = widgets.Layout(width = "40%"))
+container_var1 = widgets.HBox(children=[label_var1,var1],layout = widgets.Layout(width = '50%',height = '35px'))
+
+label_var2 = widgets.Label(' ',layout=label_var1.layout)
+var2 = widgets.BoundedFloatText(layout = var1.layout)
+container_var2 = widgets.HBox(children=[label_var2,var2],layout=container_var1.layout)
+
+label_var3 = widgets.Label(' ',layout=label_var1.layout)
+var3 = widgets.BoundedFloatText(layout = var1.layout)
+container_var3 = widgets.HBox(children=[label_var3,var3],layout=container_var1.layout)
+
+container = widgets.VBox(children=[container_var1,container_var2,container_var3],
+                         layout = widgets.Layout(align_items = 'stretch' ))
+
+# tab 2c container box
+page_waveMaker = widgets.VBox(children=[wave_container,label_waveMaker,container],
+                              layout =page_inputIntro.layout)
+
+###############################
+#### Tab #2d: Sponge layer ####
+###############################
+
+
+# sponge layer tab intro label
+sponge_label = widgets.Label("""FUNWAVE possess a DHI type sponge layer. 
+                        The user needs to specify the widths of four boundaries 
+                        and parameters.""",layout = widgets.Layout(width = '90%',height = '45px')) 
+
+## column 1 of sponge layer tab:
+# sponge layer note label
+sponge_note = widgets.HTML("""Set width = 0.0 if no sponge.""",
+                            layout=sponge_label.layout)
+
+# diffusion sponge widget container (label and checkbox) 
+dif = widgets.Checkbox(description='Diffusion Sponge',value=False,layout=widgets.Layout(height = '45px'))
+
+# friction sponge widget container (label and checkbox) 
+fric = widgets.Checkbox(description='Friction Sponge',value=False,layout=dif.layout)
+
+# direct sponge widget container (label and checkbox) 
+Dir = widgets.Checkbox(description='Direct Sponge',value=False,layout=dif.layout)
+
+container_SpongeLayer_column1 = widgets.VBox(children=[dif,fric,Dir],
+                                layout = widgets.Layout(width = '42%',align_items = 'flex-start'))
+
+## column 2 of sponge layer tab:
+# diffusion coefficient widget container (label and textbox)
+label_CDsponge = widgets.Label('Diffusion Coef', layout=widgets.Layout(width = "50%"))
+CDsponge_text = widgets.BoundedFloatText(layout = widgets.Layout(width = "30%"))
+container_CDsponge = widgets.HBox(children=[label_CDsponge,CDsponge_text],
+                                 layout=widgets.Layout(height = '65px'))
+
+# friction coefficient widget container (label and textbox)
+label_csp = widgets.Label('Friction Coef', layout = label_CDsponge.layout)
+csp_text = widgets.BoundedFloatText(layout = CDsponge_text.layout)
+container_csp = widgets.HBox(children=[label_csp,csp_text],
+                            layout=container_CDsponge.layout)
+
+# decay rate widget container (label and textbox)
+label_R_sponge = widgets.Label('Decay Rate', layout = label_CDsponge.layout)
+R_sponge_text = widgets.BoundedFloatText(layout = CDsponge_text.layout)
+container_R_sponge = widgets.HBox(children=[label_R_sponge,R_sponge_text],
+                                 layout=container_CDsponge.layout)
+
+# max decay rate widget container (label and textbox)
+label_A_sponge = widgets.Label('Max Decay Rate', layout = label_CDsponge.layout)
+A_sponge_text = widgets.BoundedFloatText(layout = CDsponge_text.layout)
+container_A_sponge = widgets.HBox(children=[label_A_sponge,A_sponge_text],
+                                 layout=container_CDsponge.layout)
+
+container_SpongeLayer_column2 = widgets.VBox(children=[container_CDsponge,container_csp,
+                                container_R_sponge,container_A_sponge],
+                                layout = widgets.Layout(width = '30%'))
+
+## Column 3 of sponge layer tab:
+
+# Left sponge width (LSW) widget container (label and textbox)
+label_LSW = widgets.Label('Left Width', layout=widgets.Layout(width = "39%"))
+LSW_text = widgets.BoundedFloatText(layout = widgets.Layout(width = "30%"))
+container_LSW = widgets.HBox(children=[label_LSW,LSW_text],
+                             layout=widgets.Layout(width = '100%',height = '65px'))
+
+# Right sponge width (RSW) widget container (label and textbox)
+label_RSW = widgets.Label('Right Width', layout = label_LSW.layout)
+RSW_text = widgets.BoundedFloatText(layout = LSW_text.layout)
+container_RSW = widgets.HBox(children=[label_RSW,RSW_text],layout=container_LSW.layout)
+
+# Top sponge width (TSW) widget container (label and textbox)
+label_TSW = widgets.Label('Top Width', layout = label_LSW.layout)
+TSW_text = widgets.BoundedFloatText(layout = LSW_text.layout)
+container_TSW = widgets.HBox(children=[label_TSW,TSW_text],layout=container_LSW.layout)
+
+# Bottom sponge width (BSW) widget container (label and textbox)
+label_BSW = widgets.Label('Bottom Width', layout = label_LSW.layout)
+BSW_text = widgets.BoundedFloatText(layout = LSW_text.layout)
+container_BSW = widgets.HBox(children=[label_BSW,BSW_text],layout=container_LSW.layout)
+
+container_SpongeLayer_column3 = widgets.VBox(children=[container_LSW,container_RSW,container_TSW,
+                                                       container_BSW],layout = widgets.Layout(width = '30%'))
+
+# create box with all columns
+container_totalColumns = widgets.HBox(children=[container_SpongeLayer_column1,
+                                                container_SpongeLayer_column2,
+                                                container_SpongeLayer_column3],
+                                      layout = widgets.Layout(height = '247px',width = '90%',
+                                                              align_items = 'stretch' ))
+
+# tab 2d container box
+page_spongeLayer = widgets.VBox([sponge_label,sponge_note,container_totalColumns],
+                                layout =page_inputIntro.layout)
+
+#######################################################################
+#### NOTE: Tab #2e: Output Options is located in PrincipalTab_3.py ####
+#######################################################################
+
+
+#######################################
+#### Tab #2f: Input File Generator ####
+#######################################
+
+inputFile_label = widgets.HTML("""Press button to verify/update <b>input.txt values</b>
+ before generating the file.""",layout = widgets.Layout(width = "50%",height = '25px'))
+
+update_input_button = widgets.Button(description = 'Update Input Values',layout = widgets.Layout(width = "50%",
+                                  height = '40px'))
+
+inputUpdate_box = widgets.HBox([inputFile_label,update_input_button],
+                               layout = widgets.Layout(width = "90%",height = '55px'))
+
+# print input.txt for verification 
+input_verification = widgets.HTML() 
+
+inputFile_box = widgets.Box([input_verification],layout = widgets.Layout(height = '295px',width = '90%'))
+# generate input file button
+inputFile_button = widgets.Button(description = 'Generate Input File',layout = widgets.Layout(width = "90%",
+                                  height = '50px'))
+
+
+page_GenInput = widgets.VBox([inputUpdate_box,space_box1,inputFile_box,space_box1,inputFile_button],
+                                 layout = page_inputIntro.layout)

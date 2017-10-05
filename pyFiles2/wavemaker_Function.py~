@@ -1,0 +1,27 @@
+import ipywidgets as widgets
+
+from pyFiles2.PrincipalTab_2 import wave_maker,label_waveMaker,label_var1,label_var2,label_var3
+#### WAVEMAKER variable description functions ####    
+    
+def on_value_change(value):
+# this function changes the wavemaker's variables description depending
+# on the chosen wavemaker
+    if wave_maker.value == 'LEF_SOL':        
+        label_waveMaker.value = 'Input values for LEF_SOL variables:'
+        label_var1.value = 'Lag Time (s):'
+        label_var2.value = 'Wave Maker Depth (m):'
+        label_var3.value = 'Initial Amplitude (m):'
+        
+    elif wave_maker.value == 'INI_SOL':
+        label_waveMaker.value = 'Input values for INI_SOL variables:'
+        label_var1.value = 'Wave maker Location (m):'
+        label_var2.value = 'Wave Maker Depth (m):'
+        label_var3.value = 'Initial Amplitude (m):'
+        
+    elif wave_maker.value == 'INI_REC':
+        label_waveMaker.value = 'Input values for INI_REC variables:'
+        label_var1.value = 'Coordinate X (m):'
+        label_var2.value = 'Coordinate Y (m):'
+        label_var3.value = 'Rectangular Hump Width (m):'
+        
+    else: pass

@@ -1,0 +1,127 @@
+import ipywidgets as widgets
+from traitlets import link
+
+##########################################################
+#### Tabs for Principal Tab 1: Bathymetry development ####
+##########################################################
+
+## Un-edited Variables (this could be added as a changeable feature in the future)
+NumSeg = 6
+THL = 200.0
+
+################################
+### Tab #1a: Initial options ###
+################################
+
+# initial gui introduction widgets
+label_intro1 = widgets.Label("""This Notebook plots \n and saves simple one-dimensional 
+bathymetries consisting of 6 segments and 7 vertices . """,layout=widgets.Layout(flex_wrap='wrap'))
+label_intro2 = widgets.Label("""The total horizontal lenght 
+of the bathymetry is equal to 200 meters.""")
+label_intro3 = widgets.Label("""The user can select the domain discretization, and the vetices elevation and location.""")
+label_Vbox =  widgets.VBox([label_intro1,label_intro2,label_intro3],layout= widgets.Layout(height = '150px',
+                           width = '100%'))
+
+# domain discretization widgets
+Dom = widgets.RadioButtons(options =['Points', 'dx'],description='Domain:',layout= widgets.Layout(height = '50px',
+                           width = '30%'))  # Radiobutton
+
+text_dom = widgets.BoundedFloatText(min = '0.0',value=1000.0,max=1000,layout=widgets.Layout(width = "30%",
+                                height = '50px')) # text box for domain value input
+
+link((Dom,'value'), (text_dom, 'description'))  # set the texts description as the selected domain
+
+# HBox for Dom and text_dom
+DomHBox = widgets.HBox([Dom, text_dom],layout= widgets.Layout(height = '90px',
+                           width = '100%',justify_content='center'))
+
+#  Plot and Save buttons widgets
+plot_button = widgets.Button(description="Plot Bathymetry", layout=widgets.Layout(width='50%',height='55px'))
+#  Plot and Save button widget
+save_button = widgets.Button(description="Create Bathymetry Input File", layout=widgets.Layout(width = '50%',height = '55px'))
+# HBox for plot and save buttons
+plotSaveHBox = widgets.HBox([plot_button, save_button]) 
+
+# tab 1a container box
+page_initialOptions = widgets.VBox(children=[label_Vbox,DomHBox,plotSaveHBox])
+
+##################################
+### Tab #1b: vertex elevations ###
+##################################
+
+# label with elevation NOTE
+label_elev = widgets.Label("""NOTE: Depth values are [-] for underwater and [+] for surface.""",
+                      layout=widgets.Layout(height = '31px', width = '100%'))
+
+
+## vertex elevation floatsliders:
+# vertex 1 = mean water level (MWL)
+MWL = widgets.FloatSlider(description='Vertex #1',value ='-5.0', max='5.0',min='-5.0',
+                    step='0.01',layout = widgets.Layout(width='95%',height = '42.5px'))  
+# vertex 2
+aa = widgets.FloatSlider(max=MWL.value*-1, min=MWL.value,value = MWL.value,
+                    step='0.01', layout=MWL.layout,description = 'Vertex #2')    
+# vertex 3
+b = widgets.FloatSlider(max=MWL.value*-1, min=MWL.value,value = MWL.value,
+                    step='0.01', layout=MWL.layout,
+                    description = 'Vertex #3')
+# vertex 4
+c = widgets.FloatSlider(max=MWL.value*-1, min=MWL.value,value = MWL.value,
+                    step='0.01', layout=MWL.layout,
+                    description = 'Vertex #4')
+# vertex 5
+d = widgets.FloatSlider(max=MWL.value*-1, min=MWL.value,value = MWL.value,
+                    step='0.01', layout=MWL.layout,
+                    description = 'Vertex #5')
+# vertex 6
+e = widgets.FloatSlider(max=MWL.value*-1, min=MWL.value,value = MWL.value,
+                    step='0.01', layout=MWL.layout,
+                    description = 'Vertex #6')
+# vertex 7
+f = widgets.FloatSlider(max=MWL.value*-1, min=MWL.value,value = MWL.value,
+                    step='0.01', layout=MWL.layout,
+                    description = 'Vertex #7')
+
+# tab 1b container box
+page_elevation = widgets.VBox(children=[label_elev,MWL,aa,b,c,d,e,f])
+
+################################
+### Tab #1c: Vertex Location ###
+################################
+
+# vertex 1 and 7 location explanation labels:
+label_v1_loc = widgets.Label("""The location of Vertex #1 is at 0.0 meters.""",
+                       height = '50px',width = '100%',size = '20')     # vert1 loc = 0.0m
+label_v7_loc = widgets.Label("""The location of Vertex #7 is at 200 meters.""",
+                       height = '23px',width = '100%',size = '20')   # vert7 loc = THL
+
+## vertex location floatsliders:
+# vertex 2
+g = widgets.FloatSlider(max=THL, min=0,value=10,
+                    step='0.01',layout=widgets.Layout(width='95%', height = '50px'),   
+                    description = 'Vertex #2')
+# vertex 3
+h = widgets.FloatSlider(max=THL, min=0,value = 20,
+                    step='0.01', layout=g.layout,
+                    description = 'Vertex #3')
+# vertex 4
+i = widgets.FloatSlider(max=THL, min=0,value = 30,
+                    step='0.01', layout=g.layout,
+                    description = 'Vertex #4')
+# vertex 5
+j = widgets.FloatSlider(max=THL, min=0,value = 40,
+                    step='0.01', layout=g.layout,
+                    description = 'Vertex #5')
+# vertex 6 
+k = widgets.FloatSlider(max=THL, min=0,value = 50,
+                    step='0.01', layout=g.layout,
+                    description = 'Vertex #6')
+
+# make sure that the locations are in order by setting the value of the previous vertex as min
+widgets.jsdlink((g,'value'),(h,'min'))
+widgets.jsdlink((h,'value'),(i,'min'))
+widgets.jsdlink((i,'value'),(j,'min'))
+widgets.jsdlink((j,'value'),(k,'min'))
+
+# tab 1c container box
+page_location = widgets.VBox(children=[label_v1_loc,g,h,i,j,k,label_v7_loc])
